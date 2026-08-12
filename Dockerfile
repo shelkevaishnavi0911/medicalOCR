@@ -7,11 +7,15 @@ COPY src ./src
 
 RUN mvn clean package -DskipTests
 
+RUN echo "===== TARGET DIRECTORY =====" && ls -lah /app/target
+
 FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
 COPY --from=build /app/target/*.jar /app/app.jar
+
+RUN echo "===== APPLICATION JAR =====" && ls -lah /app
 
 EXPOSE 10000
 
