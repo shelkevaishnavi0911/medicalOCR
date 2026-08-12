@@ -22,10 +22,19 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BearerToken extends OncePerRequestFilter {
 
-
-	    private static final String BEARER_PREFIX = "Bearer ";
-
+	
 	    private final AppProperties appProperties;
+
+	    @Override
+	    protected boolean shouldNotFilter(HttpServletRequest request) {
+
+	        String path = request.getServletPath();
+
+	        return path.equals("/extract")
+	                || path.equals("/actuator/health")
+	                || path.startsWith("/swagger-ui/")
+	                || path.startsWith("/v3/api-docs/");
+	    }
 
 	    @Override
 	    protected void doFilterInternal(
@@ -37,88 +46,53 @@ public class BearerToken extends OncePerRequestFilter {
 	        String authorizationHeader =
 	                request.getHeader(HttpHeaders.AUTHORIZATION);
 
-	        if (authorizationHeader == null
-	                || !authorizationHeader.startsWith(BEARER_PREFIX)) {
+	        if (authorizationHeader == null ||
+	                !authorizationHeader.startsWith("Bearer ")) {
 
 	            sendUnauthorizedResponse(
 	                    response,
-	                    "Missing or invalid Authorization header"
-	            );
+	                    "Missing or invalid Authorization header");
 
 	            return;
 	        }
 
 	        String token =
-	                authorizationHeader
-	                        .substring(BEARER_PREFIX.length())
-	                        .trim();
+	                authorizationHeader.substring("Bearer ".length()).trim();
 
 	        String expectedToken =
-	                appProperties
-	                        .getAuth()
-	                        .getToken();
+	                appProperties.getAuth().getToken();
 
-	        if (expectedToken == null
-	                || expectedToken.isBlank()) {
-
-	            sendUnauthorizedResponse(
-	                    response,
-	                    "Authentication is not configured"
-	            );
-
-	            return;
-	        }
-	        if (!token.equals(expectedToken)) {
+	        if (expectedToken == null ||
+	                expectedToken.isBlank() ||
+	                !token.equals(expectedToken)) {
 
 	            sendUnauthorizedResponse(
 	                    response,
-	                    "Invalid bearer token"
-	            );
+	                    "Invalid bearer token");
 
 	            return;
 	        }
-	        UsernamePasswordAuthenticationToken authentication =
-	                new UsernamePasswordAuthenticationToken(
-	                        "api-client",
-	                        null,
-	                        AuthorityUtils.NO_AUTHORITIES
-	                );
-
-	        authentication.setDetails(
-	                new WebAuthenticationDetailsSource()
-	                        .buildDetails(request)
-	        );
-
-	        SecurityContextHolder
-	                .getContext()
-	                .setAuthentication(authentication);
 
 	        filterChain.doFilter(request, response);
 	    }
 
 	    private void sendUnauthorizedResponse(
 	            HttpServletResponse response,
-	            String message)
-	            throws IOException {
+	            String message) throws IOException {
 
-	        response.setStatus(
-	                HttpServletResponse.SC_UNAUTHORIZED
-	        );
+	        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+	        response.setContentType("application/json");
 
-	        response.setContentType(
-	                "application/json"
-	        );
-
-	        response.getWriter().write(
-	                """
+	        response.getWriter().write("""
 	                {
 	                    "status": 401,
 	                    "error": "Unauthorized",
 	                    "message": "%s"
 	                }
-	                """.formatted(message)
-	        );
+	                """.formatted(message));
 	    }
 	}
+	  
+	
 
 

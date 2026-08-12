@@ -11,13 +11,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 	
-
-	    private final BearerToken bearerToken;
-
-	    public SecurityConfig(BearerToken bearerToken) {
-	        this.bearerToken = bearerToken;
-	    }
-
 	    @Bean
 	    public SecurityFilterChain securityFilterChain(
 	            HttpSecurity http) throws Exception {
@@ -34,23 +27,20 @@ public class SecurityConfig {
 	            .authorizeHttpRequests(auth -> auth
 
 	                .requestMatchers(
-	                    "/actuator/health"
-	                ).permitAll()
-
-	                .requestMatchers(
+	                    "/extract",
+	                    "/actuator/health",
 	                    "/swagger-ui/**",
 	                    "/v3/api-docs/**"
-	                ).permitAll()
+	                )
+	                .permitAll()
 
-	                .anyRequest().authenticated()
-	            )
-	            .addFilterBefore(
-	                    bearerToken,
-	                    UsernamePasswordAuthenticationFilter.class
+	                .anyRequest()
+	                .authenticated()
 	            );
 
 	        return http.build();
 	    }
 	}
+	
 	
 
