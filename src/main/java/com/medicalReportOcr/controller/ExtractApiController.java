@@ -26,15 +26,20 @@ import lombok.RequiredArgsConstructor;
 public class ExtractApiController {
 
 	private final FileValidationService fileValidationService;
+
 	private final DatalabClient datalabClient;
+
 	private final ObservationParser observationParser;
+
 	private final FhirBundleBuilder fhirBundleBuilder;
+
 	private final FhirJsonService fhirJsonService;
 
+	
 	@PostMapping("/token")
-	public ResponseEntity<Map<String, String>> extract() {
+	public ResponseEntity<Map<String, String>> token() {
 
-		return ResponseEntity.ok(Map.of("message", "Authentication successful"));
+		return ResponseEntity.ok(Map.of("message", "Authentication endpoint is available"));
 	}
 
 	@PostMapping(value = "/extract", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -44,12 +49,19 @@ public class ExtractApiController {
 
 		DatalabResultResponse ocrResult = datalabClient.process(file);
 
+		System.out.println("====================================");
+		System.out.println("OCR MARKDOWN:");
+		System.out.println(ocrResult.getMarkdown());
+		System.out.println("====================================");
+
 		if (ocrResult.getMarkdown() == null || ocrResult.getMarkdown().isBlank()) {
 
 			throw new IllegalStateException("OCR returned no extractable text");
 		}
 
 		List<MedicalObservation> observations = observationParser.parse(ocrResult.getMarkdown());
+
+		System.out.println("OBSERVATIONS FOUND: " + observations.size());
 
 		if (observations.isEmpty()) {
 
@@ -62,7 +74,7 @@ public class ExtractApiController {
 				.map(MedicalObservation::getTestName).distinct().toList();
 
 		String json = fhirJsonService.encode(bundle, needsReview);
+
 		return ResponseEntity.ok(json);
 	}
-
 }

@@ -4,26 +4,30 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import lombok.AllArgsConstructor;
+
+import lombok.NoArgsConstructor;
+
 @Getter
+@Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class MedicalObservation {
-	
-	 private final String testName;
 
-	    private final String rawValue;
+	    private String testName;
 
-	    private final Double value;
+	    private Double value;
 
-	    private final String unit;
+	    private String unit;
 
-	    private final Double referenceLow;
+	    private Double referenceLow;
 
-	    private final Double referenceHigh;
+	    private Double referenceHigh;
 
-	    private final String interpretation;
+	    private boolean needsReview;
 
-	    private final boolean needsReview;
+	    private String reviewReason;
+	}
 
-	    private final String reviewReason;
 
-}

@@ -10,10 +10,14 @@ import com.medicalReportOcr.entity.MedicalObservation;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 public class FhirBundleBuilder {
 
-	private final FhirObservationMapper observationMapper;
+	private final FhirObservationMapper mapper;
+
+	public FhirBundleBuilder(FhirObservationMapper mapper) {
+
+		this.mapper = mapper;
+	}
 
 	public Bundle build(List<MedicalObservation> observations) {
 
@@ -21,13 +25,24 @@ public class FhirBundleBuilder {
 
 		bundle.setType(Bundle.BundleType.COLLECTION);
 
+		if (observations == null || observations.isEmpty()) {
+
+			return bundle;
+		}
+
 		for (MedicalObservation source : observations) {
 
-			Observation observation = observationMapper.map(source);
+			if (source.getTestName() == null || source.getTestName().isBlank()) {
+
+				continue;
+			}
+
+			Observation observation = mapper.map(source);
 
 			bundle.addEntry().setResource(observation);
 		}
 
 		return bundle;
 	}
+
 }

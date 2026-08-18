@@ -10,40 +10,47 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 public class CorsConfig {
-	
+
 	    @Bean
 	    public CorsConfigurationSource corsConfigurationSource() {
 
 	        CorsConfiguration configuration =
 	                new CorsConfiguration();
 
-	        configuration.setAllowedOrigins(List.of(
-	            "https://medicalocr-frondend.onrender.com",
-	            "http://localhost:5500",
-	            "http://127.0.0.1:5500"
-	        ));
+	        configuration.setAllowedOrigins(
+	                List.of("*")
+	        );
 
-	        configuration.setAllowedMethods(List.of(
-	            "GET",
-	            "POST",
-	            "PUT",
-	            "DELETE",
-	            "OPTIONS"
-	        ));
+	        configuration.setAllowedMethods(
+	                List.of(
+	                        "GET",
+	                        "POST",
+	                        "PUT",
+	                        "DELETE",
+	                        "PATCH",
+	                        "OPTIONS"
+	                )
+	        );
 
-	        configuration.setAllowedHeaders(List.of("*"));
+	        configuration.setAllowedHeaders(
+	                List.of("*")
+	        );
 
-	        configuration.setAllowCredentials(false);
+	        configuration.setExposedHeaders(
+	                List.of("*")
+	        );
 
 	        UrlBasedCorsConfigurationSource source =
 	                new UrlBasedCorsConfigurationSource();
 
 	        source.registerCorsConfiguration(
-	            "/**",
-	            configuration
+	                "/**",
+	                configuration
 	        );
 
 	        return source;
 	    }
 	}
+	
+	
 	
