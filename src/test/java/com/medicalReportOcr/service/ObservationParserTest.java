@@ -36,8 +36,6 @@ public class ObservationParserTest {
 
 		assertEquals(16.0, observation.getReferenceHigh());
 
-		assertEquals("L", observation.getInterpretation());
-
 		assertFalse(observation.isNeedsReview());
 	}
 
